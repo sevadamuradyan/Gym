@@ -1,54 +1,55 @@
 #include <stdio.h>
-#include <pthread.h>
 #include <stdlib.h>
-#include <time.h>
 
-#define N 5
-int array[] = { 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181,6765,10946,17711};
-
-void* reduce(void* (functionPointer)(void*), void *datapointer) {
-	pthread_t threadHandle[N];
-    for (int i = 0; i < N; i++) {
-        int* a = malloc(sizeof(int));
-        *a = i * (1000 / N);
-        if (pthread_create(&threadHandle[i], NULL, functionPointer, a) != 0) {
-            perror("Did not create thread");
-        }
-    }
-    int globalMul = 1;
-    int* r;
-    for (int i = 0; i < N; i++) {
-        if (pthread_join(threadHandle[i], (void**) &r) != 0) {
-            perror("Did not join thread");
-        }
-        globalMul *= (*r);
-        
-        free(r);
-    }
-    printf("%d\n",globalMul);
-	int* c = &globalMul;
-    void* v = c;
-	return v;
+struct threeNum
+{
+   int n1, n2, n3;
+};
+int main(int argc, char *argv[])
+{
+	int num1 = atoi(argv[1]);
+	FILE *files[num1];
+	for(int i = 1; i <= num1; i++)
+	{
+		char name[12];
+		sprintf(name, "Result_%d.txt", i);
+		files[i] = fopen(name, "o");
+		fprintf(*(files + i), "Hallo, World %d\n", i);
+		fclose(*(files + i));
+	}
 	
-}
+	 int num2;
+   FILE *fptr;
 
-void* functionPointer(void *arg) {
-	int index = *(int*)arg;
-    int mul = 1;
-    for (int j = 0; j < (1000 / N); j++) {
-        mul *= array[index + j];
-    }
-    *(int*)arg = mul;
-    return arg;
-}
+   if ((fptr = fopen("C:\\text.txt","r")) == NULL){
+       printf("Error! opening file");
 
-int main(int argc, char** argv) {
-    clock_t cTime;
-    cTime = clock();
-    printf("Timer starts\n");
-	reduce(functionPointer, array);
-	cTime = clock() - cTime;
-    double taken = ((double)cTime)/CLOCKS_PER_SEC;
-    printf("The program get %f seconds to execute", taken);
-	return 0;
+       
+       exit(1);
+   }
+
+   fscanf(fptr,"%d", &num2);
+
+   printf("Value of n=%d", num2);
+   fclose(fptr); 
+   
+   struct threeNum num;
+   int num3;
+   if ((fptr = fopen("C:\\text.bin","rb")) == NULL){
+       printf("Error! opening file");
+
+      
+       exit(1);
+   }
+   
+   
+   fseek(fptr, -sizeof(struct threeNum), SEEK_END);
+
+   for(num3 = 1; num3 < 5; ++num3)
+   {
+      fread(&num, sizeof(struct threeNum), 1, fptr); 
+      printf("n1: %d\tn2: %d\tn3: %d\n", num.n1, num.n2, num.n3);
+      fseek(fptr, -2*sizeof(struct threeNum), SEEK_CUR);
+   }
+   fclose(fptr); 
 }
